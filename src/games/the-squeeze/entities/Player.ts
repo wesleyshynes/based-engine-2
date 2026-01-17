@@ -22,7 +22,7 @@ export class Player extends GameObject {
   sizeSpeed = 3
   
   // Movement
-  baseSpeed = 8
+  baseSpeed = 5
   
   // Visual
   color = { r: 255, g: 150, b: 50 }
@@ -33,6 +33,11 @@ export class Player extends GameObject {
   wallCount = 0
   lastStepTime = 0
   stepInterval = 200
+  
+  // External input (set by level for touch controls)
+  inputMoveX = 0
+  inputMoveY = 0
+  inputScale = 0
   
   // Callbacks
   onWallHit?: () => void
@@ -82,9 +87,9 @@ export class Player extends GameObject {
     }
 
     const input = this.input
-    let moveX = 0
-    let moveY = 0
-    let scale = 0
+    let moveX = this.inputMoveX
+    let moveY = this.inputMoveY
+    let scale = this.inputScale
 
     // Debug log input state
     if (input.anyKey('KeyH')) {
@@ -92,17 +97,15 @@ export class Player extends GameObject {
       console.log(this)
     }
 
-    // Movement
+    // Keyboard movement (adds to external input)
     if (input.anyKey('KeyA', 'ArrowLeft')) moveX -= 1
     if (input.anyKey('KeyD', 'ArrowRight')) moveX += 1
     if (input.anyKey('KeyW', 'ArrowUp')) moveY -= 1
     if (input.anyKey('KeyS', 'ArrowDown')) moveY += 1
 
-    // Size change
+    // Keyboard size change (adds to external input)
     if (input.key('KeyZ')) scale -= 1
     if (input.key('KeyX') && this.wallCount < 2) scale += 1
-
-    // console.log(`Player input: moveX=${moveX}, moveY=${moveY}, scale=${scale}`)
 
     // Apply movement via physics - use Matter.Body.setVelocity directly
     if (moveX !== 0 || moveY !== 0) {
@@ -144,6 +147,11 @@ export class Player extends GameObject {
 
     // Update color based on size
     this._updateColor()
+
+    // Reset external inputs
+    this.inputMoveX = 0
+    this.inputMoveY = 0
+    this.inputScale = 0
   }
 
   private _updateColor(): void {

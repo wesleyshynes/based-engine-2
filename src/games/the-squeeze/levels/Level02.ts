@@ -33,6 +33,6 @@ export class Level02 extends SqueezeLevel {
   }
 
   getNextLevel(): string {
-    return 'level-03'
+    return 'credits'
   }
 }

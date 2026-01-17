@@ -225,7 +225,13 @@ export abstract class SqueezeLevel extends BasedLevel {
   }
 
   update(delta: number): void {
-    if (this.gameState !== 'playing') return
+    // Handle level complete click first
+    if (this.gameState === 'complete') {
+      if (this.input.pointerPressed) {
+        this._goToNextLevel()
+      }
+      return
+    }
 
     // Update physics
     this.physics.update(delta)
@@ -262,10 +268,19 @@ export abstract class SqueezeLevel extends BasedLevel {
       this.shrinkButton.update()
       this.growButton.update()
 
-      // Apply touch controls to player
+      // Apply touch controls to player via input properties
       if (this.moveKnob.active) {
         const dir = this.moveKnob.direction
-        this.player.body.setVelocity(dir.x * 8, dir.y * 8)
+        this.player.inputMoveX = dir.x
+        this.player.inputMoveY = dir.y
+      }
+
+      // Apply size controls via input properties
+      if (this.shrinkButton.pressed) {
+        this.player.inputScale = -1
+      }
+      if (this.growButton.pressed) {
+        this.player.inputScale = 1
       }
     }
   }
@@ -361,5 +376,11 @@ export abstract class SqueezeLevel extends BasedLevel {
   private _playStepSound(): void {
     const freq = 200 + Math.random() * 100
     this.sound.playNote(freq, 0.05, 'sine')
+  }
+
+  private _goToNextLevel(): void {
+    if (this.nextLevel) {
+      this.engine.loadLevel(this.nextLevel)
+    }
   }
 }
