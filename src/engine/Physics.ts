@@ -35,12 +35,12 @@ export class PhysicsWorld {
   private _physicsRate = 1000 / 60  // Fixed timestep like original
 
   gravity: Vec2 = { x: 0, y: 1 }
-  
+
   constructor(options: { gravity?: Vec2 } = {}) {
     // Create engine - same as original: Physics.Engine.create()
     this._engine = Matter.Engine.create()
     this._world = this._engine.world
-    
+
     if (options.gravity) {
       this.gravity = options.gravity
     }
@@ -52,7 +52,7 @@ export class PhysicsWorld {
       for (const pair of event.pairs) {
         const bodyA = this._getBodyFromMatter(pair.bodyA)
         const bodyB = this._getBodyFromMatter(pair.bodyB)
-        
+
         if (bodyA && bodyB) {
           bodyA._onCollisionStart(bodyB, pair)
           bodyB._onCollisionStart(bodyA, pair)
@@ -64,14 +64,14 @@ export class PhysicsWorld {
       for (const pair of event.pairs) {
         const bodyA = this._getBodyFromMatter(pair.bodyA)
         const bodyB = this._getBodyFromMatter(pair.bodyB)
-        
+
         if (bodyA && bodyB) {
           bodyA._onCollisionEnd(bodyB, pair)
           bodyB._onCollisionEnd(bodyA, pair)
         }
       }
     })
-    
+
     console.log('PhysicsWorld created, engine:', this._engine, 'world:', this._world)
   }
 
@@ -88,31 +88,10 @@ export class PhysicsWorld {
    * Update physics simulation - use fixed timestep like original
    */
   update(_delta: number): void {
-    // console.log('Physics.update called, bodies count:', this._bodies.size)
-    
-    // Debug: check body positions before update
-    // for (const [id, body] of this._bodies) {
-    //   if (body._matterBody) {
-    //     const pos = body._matterBody.position
-    //     console.log('Body', id, 'position before:', pos.x, pos.y)
-    //     if (isNaN(pos.x) || isNaN(pos.y)) {
-    //       console.warn('BEFORE update - Body has NaN position:', id, pos)
-    //     }
-    //   }
-    // }
-    
+
     // Use fixed timestep like original: Physics.Engine.update(this.physics, this.physicsRate)
     Matter.Engine.update(this._engine, this._physicsRate)
-    
-    // Debug: check body positions after update
-  //   for (const [id, body] of this._bodies) {
-  //     if (body._matterBody) {
-  //       const pos = body._matterBody.position
-  //       if (isNaN(pos.x) || isNaN(pos.y)) {
-  //         console.warn('AFTER update - Body has NaN position:', id, pos)
-  //       }
-  //     }
-  //   }
+
   }
 
   /**
@@ -136,11 +115,11 @@ export class PhysicsWorld {
     body._matterBody = matterBody
     body._radius = radius
     body._type = 'circle'
-    
+
     this._bodies.set(body.id, body)
     // Add to world - same as original: Physics.Composite.add(this.physics.world, bodyRef)
     Matter.Composite.add(this._world, matterBody)
-    
+
     return body
   }
 
@@ -156,10 +135,10 @@ export class PhysicsWorld {
     body._width = width
     body._height = height
     body._type = 'rect'
-    
+
     this._bodies.set(body.id, body)
     Matter.Composite.add(this._world, body._matterBody)
-    
+
     return body
   }
 
@@ -174,10 +153,10 @@ export class PhysicsWorld {
     })
     body._radius = radius
     body._type = 'polygon'
-    
+
     this._bodies.set(body.id, body)
     Matter.Composite.add(this._world, body._matterBody)
-    
+
     return body
   }
 
@@ -191,10 +170,10 @@ export class PhysicsWorld {
       plugin: { physicsBody: body }
     })
     body._type = 'vertices'
-    
+
     this._bodies.set(body.id, body)
     Matter.Composite.add(this._world, body._matterBody)
-    
+
     return body
   }
 
@@ -241,7 +220,7 @@ export class PhysicsWorld {
   raycast(start: Vec2, end: Vec2): { body: PhysicsBody; point: Vec2 }[] {
     const bodies = Array.from(this._bodies.values()).map(b => b._matterBody)
     const collisions = Matter.Query.ray(bodies, start as Matter.Vector, end as Matter.Vector)
-    
+
     return collisions.map(c => ({
       body: (c.bodyA.plugin as { physicsBody: PhysicsBody }).physicsBody,
       point: { x: c.bodyA.position.x, y: c.bodyA.position.y }
@@ -259,12 +238,12 @@ export class PhysicsWorld {
       angle: options.angle ?? 0,
       label: options.label ?? '',
     }
-    
+
     // Only include these if explicitly set, as undefined values can cause NaN issues
     if (options.density !== undefined) result.density = options.density
     if (options.mass !== undefined) result.mass = options.mass
     if (options.inertia !== undefined) result.inertia = options.inertia
-    
+
     return result
   }
 
@@ -278,7 +257,7 @@ export class PhysicsWorld {
 
 export class PhysicsBody {
   readonly id: string
-  
+
   _matterBody!: Matter.Body
   _type: 'circle' | 'rect' | 'polygon' | 'vertices' = 'rect'
   _radius = 0
@@ -296,21 +275,21 @@ export class PhysicsBody {
   }
 
   // Position
-  get x(): number { 
+  get x(): number {
     if (!this._matterBody) {
       console.warn('PhysicsBody._matterBody is undefined!')
       return 0
     }
-    return this._matterBody.position.x 
+    return this._matterBody.position.x
   }
   set x(v: number) { Matter.Body.setPosition(this._matterBody, { x: v, y: this.y }) }
-  
-  get y(): number { 
+
+  get y(): number {
     if (!this._matterBody) {
       console.warn('PhysicsBody._matterBody is undefined!')
       return 0
     }
-    return this._matterBody.position.y 
+    return this._matterBody.position.y
   }
   set y(v: number) { Matter.Body.setPosition(this._matterBody, { x: this.x, y: v }) }
 
@@ -348,12 +327,12 @@ export class PhysicsBody {
   set isStatic(v: boolean) { Matter.Body.setStatic(this._matterBody, v) }
 
   get isSensor(): boolean { return this._matterBody.isSensor }
-  
+
   get label(): string { return this._matterBody.label }
   set label(v: string) { this._matterBody.label = v }
 
   get mass(): number { return this._matterBody.mass }
-  
+
   // Dimensions (for rendering)
   get radius(): number { return this._radius }
   get width(): number { return this._width }
