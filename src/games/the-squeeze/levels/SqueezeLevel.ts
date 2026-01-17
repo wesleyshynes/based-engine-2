@@ -230,9 +230,6 @@ export abstract class SqueezeLevel extends BasedLevel {
     // Update physics
     this.physics.update(delta)
 
-    // this.player.update(delta)
-
-
     // Camera automatically follows the player (set in create)
 
     // Handle zoom
@@ -295,14 +292,14 @@ export abstract class SqueezeLevel extends BasedLevel {
     }
 
     // Debug: manually draw the player from here
-    if (this.player) {
-      // console.log('Player exists, pos:', this.player.x, this.player.y, 'visible:', this.player.visible)
-      draw.circle(this.player.x, this.player.y, this.player.radius, {
-        fill: 'orange',
-        stroke: 'black',
-        strokeWidth: 3
-      })
-    }
+    // if (this.player) {
+    //   // console.log('Player exists, pos:', this.player.x, this.player.y, 'visible:', this.player.visible)
+    //   draw.circle(this.player.x, this.player.y, this.player.radius, {
+    //     fill: 'orange',
+    //     stroke: 'black',
+    //     strokeWidth: 3
+    //   })
+    // }
   }
 
   drawUI(draw: Draw): void {
